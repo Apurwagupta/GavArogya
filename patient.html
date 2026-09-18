@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Portal - GavArogya | गावोगाव, आरोग्याचा विश्वास</title>
+  <meta name="description" content="GavArogya Patient Portal - Mobile-first website view with AI primary consultation, 9-stage visual journey timeline, and secure Care Passport.">
+
+  <!-- Google Fonts: Inter, Outfit, and Noto Sans Devanagari for authentic Marathi -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- =========================================================================
+       1. Top Portal Navigation Bar (Website View)
+       ========================================================================= -->
+  <nav class="portal-navbar">
+    <div class="container portal-navbar-inner">
+      <div class="brand-logo-group" onclick="window.location.href='index.html'" title="GavArogya Home Gateway">
+        <div class="brand-icon-wrap">
+          <img src="assets/gavarogya-logo.jpeg" alt="GavArogya logo">
+        </div>
+        <div class="brand-text">
+          <h1 style="font-size: 1.25rem;">GavArogya</h1>
+          <p data-i18n="brandTagline">Connected Care, From Village to Treatment.</p>
+        </div>
+      </div>
+
+      <!-- Portal Switcher Links -->
+      <div class="portal-nav-links">
+        <a href="patient.html" class="portal-nav-link active">👤 Patient Portal</a>
+        <a href="asha.html" class="portal-nav-link">👩‍⚕️ ASHA Portal</a>
+        <a href="facility.html" class="portal-nav-link">🏥 Facility Hub</a>
+        <a href="ministry.html" class="portal-nav-link">🏛️ Ministry Analytics</a>
+      </div>
+
+      <div class="header-actions">
+        <!-- Language Switcher: EN | मराठी -->
+        <div class="lang-toggle-wrap">
+          <button class="lang-btn active" data-lang="en" onclick="setLanguage('en')">EN</button>
+          <button class="lang-btn marathi-btn" data-lang="mr" onclick="setLanguage('mr')">मराठी</button>
+        </div>
+
+        <button class="audit-btn" onclick="openAuditDrawer()">
+          <span>🔒</span>
+          <span>Audit Log</span>
+        </button>
+
+        <a href="index.html" onclick="event.preventDefault(); logout();" class="portal-nav-link logout-nav-link" title="Logout and return to Gateway">
+          <span>🚪</span>
+          <span>Logout</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- =========================================================================
+       2. Connected Cross-Portal Simulation Control Bar
+       ========================================================================= -->
+  <aside class="sim-controller-banner" aria-label="Interactive Cross-Portal Simulation Control">
+    <div class="container sim-banner-inner">
+      <div class="sim-status-label">
+        <span>⚡ <strong>Cross-Portal Simulation:</strong></span>
+      </div>
+
+      <!-- 5 Progression Steps -->
+      <div class="sim-steps-flow">
+        <button class="sim-step-btn" data-step="1" onclick="runSimulationStep(1)">
+          <span class="step-num">1</span> Patient Asks Help
+        </button>
+        <span class="sim-step-arrow">→</span>
+
+        <button class="sim-step-btn" data-step="2" onclick="runSimulationStep(2)">
+          <span class="step-num">2</span> ASHA Triage (RED)
+        </button>
+        <span class="sim-step-arrow">→</span>
+
+        <button class="sim-step-btn" data-step="3" onclick="runSimulationStep(3)">
+          <span class="step-num">3</span> Satara DH Accepts
+        </button>
+        <span class="sim-step-arrow">→</span>
+
+        <button class="sim-step-btn" data-step="4" onclick="runSimulationStep(4)">
+          <span class="step-num">4</span> Treatment Done
+        </button>
+        <span class="sim-step-arrow">→</span>
+
+        <button class="sim-step-btn" data-step="5" onclick="runSimulationStep(5)">
+          <span class="step-num">5</span> Follow-up & Ministry Sync
+        </button>
+      </div>
+
+      <div>
+          Website View Active
+        </span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- =========================================================================
+       3. Main Patient Portal Page Content (Expansive Website View)
+       ========================================================================= -->
+  <main class="portal-page-container">
+
+    <!-- Patient Header Card -->
+    <header class="patient-website-header">
+      <div class="patient-header-left">
+        <div class="patient-header-avatar">👤</div>
+        <div class="patient-header-info">
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <h2 id="patientNameHeader"></h2>
+            <span class="abha-pill-badge">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <path d="M20 6L9 17l-5-5"/>
+              </svg>
+              ABHA: <span id="patientAbhaHeader"></span>
+            </span>
+          </div>
+          <div class="patient-header-meta">
+            <span><strong>Age:</strong> <span id="patientAgeHeader"></span></span>
+            <span>•</span>
+            <span><strong>Village:</strong> <span id="patientVillageHeader"></span></span>
+            <span>•</span>
+            <span><strong>Assigned ASHA:</strong> <span id="patientAshaHeader"></span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="patient-header-right">
+        <span class="case-status-pill referred" id="patientStatusBadge">Smart Referral in Progress</span>
+        <div style="font-size: 0.8rem; color: var(--slate-600); text-align: right;">
+          Destination: <strong>District Hospital, Satara</strong> (ETA: <strong>42 min</strong>)
+        </div>
+        <div style="font-size: 0.74rem; color: var(--teal-700); font-weight: 700;">
+          “Secure access to your personal healthcare journey.”
+        </div>
+      </div>
+    </header>
+
+    <!-- 9-Stage Visual Patient Journey Timeline (Website View) -->
+    <section class="timeline-website-card">
+      <div class="timeline-website-header">
+        <h3>
+          <span>🧭 Visual Patient Journey Timeline</span>
+          <span style="font-size: 0.75rem; font-weight: 600; color: var(--slate-500);">(Closed-Loop Rural Healthcare Track)</span>
+        </h3>
+        <span style="font-size: 0.78rem; font-weight: 700; color: var(--teal-700);">Only shows your authorized personal case</span>
+      </div>
+
+      <div class="timeline-stages-horizontal" id="horizontalTimeline">
+        <!-- Injected dynamically by patient script -->
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         4. NEW: AI Primary Consultation Hub (GavArogya AI Swasthya Sahayak)
+         ========================================================================= -->
+    <section class="ai-consultation-panel">
+      <div class="ai-consult-header">
+        <div class="ai-header-left">
+          <div class="ai-avatar-sparkle">🤖</div>
+          <div class="ai-title-wrap">
+            <h3>GavArogya AI Primary Consultation • गावआरोग्य AI स्वास्थ्य सहायक</h3>
+            <p>Clinical Decision Support • AI-Assisted, Not a Diagnosis • Bilingual (English / मराठी)</p>
+          </div>
+        </div>
+        <div>
+          <span style="font-size: 0.74rem; background: rgba(255,255,255,0.18); padding: 4px 10px; border-radius: 9999px; font-weight: 700;">
+            Rule-Based Clinical Triage v2.4
+          </span>
+        </div>
+      </div>
+
+      <div class="ai-consult-body">
+        <!-- Left: Symptom Selector & Text Input -->
+        <div class="ai-symptom-input-col">
+          <div>
+            <div class="ai-chips-label">👉 Select Common Rural Health Symptoms or Tap to Add:</div>
+            <div class="ai-symptom-chips-wrap">
+              <button class="symptom-chip-btn" onclick="selectAiSymptom('Severe breathlessness & acute chest tightness')">
+                🫁 Severe Breathlessness & Chest Tightness
+              </button>
+              <button class="symptom-chip-btn" onclick="selectAiSymptom('High fever with shivering and body chills (3+ days)')">
+                🌡️ High Fever & Shivering (3+ days)
+              </button>
+              <button class="symptom-chip-btn" onclick="selectAiSymptom('Sudden chest pain radiating to left arm and sweating')">
+                ⚡ Radiating Chest Pain
+              </button>
+              <button class="symptom-chip-btn" onclick="selectAiSymptom('Pesticide spray inhalation with dizziness and nausea')">
+                🌾 Pesticide Spray Exposure
+              </button>
+              <button class="symptom-chip-btn" onclick="selectAiSymptom('Persistent cough with bloody phlegm and night sweats')">
+                🩸 Cough with Blood
+              </button>
+              <button class="symptom-chip-btn" onclick="selectAiSymptom('Acute dehydration with diarrhea and extreme weakness')">
+                💧 Severe Dehydration
+              </button>
+            </div>
+          </div>
+
+          <div class="ai-text-input-wrap">
+            <label class="form-label" style="font-weight: 700;">Describe What You Feel (in Marathi or English):</label>
+            <textarea id="aiSymptomInput" class="ai-symptom-textarea" placeholder="e.g. मला छातीत दुखत आहे आणि श्वास घ्यायला त्रास होत आहे... (Severe chest pain and difficulty breathing)"></textarea>
+            
+            <div class="ai-input-actions-bar">
+              <button class="ai-mic-btn" type="button" onclick="simulateAiVoiceInput()">
+                <span>🎙️</span>
+                <span>Speak in Marathi / Audio Input</span>
+              </button>
+
+              <button class="ai-analyze-btn" type="button" onclick="runAiConsultation()">
+                <span>⚡</span>
+                <span>Analyze with GavArogya AI</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: AI Triage Assessment Output Box -->
+        <div class="ai-triage-output-col">
+          <div>
+            <div class="ai-triage-result-header">
+              <span style="font-size: 0.8rem; font-weight: 800; color: var(--slate-800);">AI Clinical Triage Result</span>
+              <span class="ai-risk-tag red" id="aiRiskBadge">HIGH RISK (RED)</span>
+            </div>
+
+            <div style="font-size: 0.85rem; font-weight: 800; color: var(--rose-700); margin-bottom: 6px;" id="aiUrgencyTitle">
+              Critical Respiratory Distress & Hypoxia Alert
+            </div>
+
+            <p class="ai-recommendation-text" id="aiRecommendationText">
+              Rule-based triage detected acute hypoxia (<span style="color: var(--rose-700); font-weight: 700;">SpO2 89%</span>, Respiratory Rate 28/min). Oxygen support and physician evaluation required immediately. Frontline ASHA worker Sunita Tai has been queued for immediate triage.
+            </p>
+
+            <div style="background: var(--slate-100); border-radius: var(--radius-md); padding: 8px 12px; font-size: 0.74rem; color: var(--slate-600); margin-bottom: 12px;">
+              🛡️ <strong>Explainability Rule:</strong> Clinically validated protocol: SpO2 &lt; 92% flags mandatory secondary hospital referral. Final diagnosis always made by qualified doctor.
+            </div>
+          </div>
+
+          <div class="ai-triage-actions-group">
+            <button class="ai-escalation-btn asha-btn" onclick="triggerAshaAlertFromAi()">
+              <span>🚨</span>
+              <span>Alert Assigned ASHA (Sunita Tai)</span>
+            </button>
+            <button class="ai-escalation-btn tele-btn" onclick="openConsultDoctorModal()">
+              <span>🩺</span>
+              <span>Connect Doctor via eSanjeevani</span>
+            </button>
+            <button class="ai-escalation-btn emer-btn" onclick="openEmergencyModal()">
+              <span>🚑</span>
+              <span>Dispatch 108 Emergency Ambulance</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vitals & Clinical Telemetry Bar (Website View) -->
+    <section class="patient-vitals-website-bar">
+      <div class="vital-stat-block">
+        <span class="vital-stat-label">Blood Pressure</span>
+        <span class="vital-stat-value">148/96</span>
+        <span class="vital-stat-tag elevated">Elevated (Stage 2)</span>
+      </div>
+
+      <div class="vital-stat-block">
+        <span class="vital-stat-label">Oxygen (SpO2)</span>
+        <span class="vital-stat-value" style="color: var(--rose-600);">89%</span>
+        <span class="vital-stat-tag critical">Hypoxia Alert</span>
+      </div>
+
+      <div class="vital-stat-block">
+        <span class="vital-stat-label">Pulse / Heart Rate</span>
+        <span class="vital-stat-value">108 bpm</span>
+        <span class="vital-stat-tag elevated">Tachycardia</span>
+      </div>
+
+      <div class="vital-stat-block">
+        <span class="vital-stat-label">Body Temperature</span>
+        <span class="vital-stat-value">99.4°F</span>
+        <span class="vital-stat-tag normal">Mild Low-Grade</span>
+      </div>
+
+      <div class="vital-stat-block">
+        <span class="vital-stat-label">Respiratory Rate</span>
+        <span class="vital-stat-value" style="color: var(--rose-600);">28 /min</span>
+        <span class="vital-stat-tag critical">Tachypnea</span>
+      </div>
+    </section>
+
+    <!-- Primary Actions Grid (Website View) -->
+    <div>
+      <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--slate-900); margin-bottom: 14px;">
+        Primary Care Actions
+      </h3>
+      <div class="website-actions-grid-4">
+        <!-- 1. Ask for Help -->
+        <div class="action-card-website" onclick="openAskHelpModal()">
+          <div class="action-card-icon-wrap help">➕</div>
+          <h4>Ask for Assistance</h4>
+          <p>Submit immediate symptoms or urgent home visit request to your assigned ASHA worker.</p>
+          <div class="action-card-btn-label">Request Visit →</div>
+        </div>
+
+        <!-- 2. Consult Doctor -->
+        <div class="action-card-website" onclick="openConsultDoctorModal()">
+          <div class="action-card-icon-wrap doc">🩺</div>
+          <h4>Consult Doctor</h4>
+          <p>Instant eSanjeevani WebRTC video consultation with Dr. A. Kulkarni at Satara DH.</p>
+          <div class="action-card-btn-label">Start Video Call →</div>
+        </div>
+
+        <!-- 3. Contact ASHA -->
+        <div class="action-card-website" onclick="openContactAshaModal()">
+          <div class="action-card-icon-wrap asha">👤</div>
+          <h4>Contact ASHA Worker</h4>
+          <p>Direct frontline dial to Sunita Tai for medicine delivery, vitals verification, or guidance.</p>
+          <div class="action-card-btn-label">Call Sunita Tai →</div>
+        </div>
+
+        <!-- 4. Emergency 108 -->
+        <div class="action-card-website" onclick="openEmergencyModal()">
+          <div class="action-card-icon-wrap emer">🚨</div>
+          <h4>Emergency Help 108</h4>
+          <p>Direct Maharashtra MEMS 108 ambulance dispatch with digital pre-arrival vital alerts.</p>
+          <div class="action-card-btn-label" style="color: var(--rose-700);">Dispatch 108 →</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Secondary Services Grid (Website View) -->
+    <div>
+      <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--slate-900); margin-bottom: 14px;">
+        My Healthcare Records & Services
+      </h3>
+      <div class="website-actions-grid-4">
+        <!-- 1. My Referrals -->
+        <div class="action-card-website" onclick="openMyReferralsModal()">
+          <div class="action-card-icon-wrap" style="background: var(--teal-100); color: var(--teal-800);">📋</div>
+          <h4>My Referrals</h4>
+          <p>Active referral token to District Hospital Satara with ambulance pre-arrival status.</p>
+          <div class="action-card-btn-label">Track Referral →</div>
+        </div>
+
+        <!-- 2. Care Passport -->
+        <div class="action-card-website" onclick="openCarePassportModal()">
+          <div class="action-card-icon-wrap" style="background: var(--purple-100); color: var(--purple-800);">🪪</div>
+          <h4>GavArogya Care Passport</h4>
+          <p>View your digitally sealed QR token, triage vitals, and hospital admission barcode.</p>
+          <div class="action-card-btn-label">Open Passport →</div>
+        </div>
+
+        <!-- 3. Follow-Ups -->
+        <div class="action-card-website" onclick="openFollowUpsModal()">
+          <div class="action-card-icon-wrap" style="background: var(--amber-100); color: var(--amber-800);">🔄</div>
+          <h4>Follow-Up Schedule</h4>
+          <p>Track your 7-day post-discharge home recovery checkup with ASHA Sunita Tai.</p>
+          <div class="action-card-btn-label">View Schedule →</div>
+        </div>
+
+        <!-- 4. Health Tips -->
+        <div class="action-card-website" onclick="openHealthTipsModal()">
+          <div class="action-card-icon-wrap" style="background: var(--emerald-100); color: var(--emerald-800);">💡</div>
+          <h4>Rural Health Tips</h4>
+          <p>Seasonal preventive advice for monsoon water safety, heatstroke, and hypertension care.</p>
+          <div class="action-card-btn-label">Read Tips →</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Patient-specific Medical History -->
+    <section id="medicalHistorySection" style="margin-top: 26px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px;">
+        <div>
+          <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--slate-900); margin-bottom: 4px;">Medical History</h3>
+          <p style="font-size: 0.78rem; color: var(--slate-500);">Private records for the currently authenticated patient.</p>
+        </div>
+        <button class="btn-primary" onclick="openMedicalHistoryModal()" style="width: auto; padding: 8px 16px;">View Full History</button>
+      </div>
+      <div id="medicalHistorySummary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 14px;"></div>
+      <div style="margin-top: 14px; background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); padding: 18px; box-shadow: var(--shadow-xs);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--slate-900);">Recent Medical Timeline</h4>
+          <span style="font-size: 0.72rem; color: var(--teal-700);">Newest first</span>
+        </div>
+        <div id="medicalTimelinePreview" style="display: flex; flex-direction: column; gap: 8px;"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Universal Interactive Modal Dialog -->
+  <div class="modal-backdrop" id="genericModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h4 id="modalTitle">Modal Title</h4>
+        <button class="modal-close-btn" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer" id="modalFooter"></div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Shared Engine & Patient Logic -->
+  <script src="shared.js"></script>
+  <script>
+    function renderPatientTimeline() {
+      const track = document.getElementById('horizontalTimeline');
+      if (!track) return;
+      
+      const currentIdx = GavArogyaState.patient.currentStageIndex;
+      const isMr = GavArogyaState.currentLang === 'mr';
+
+      track.innerHTML = STAGES.map(stage => {
+        const isDone = stage.index < currentIdx;
+        const isActive = stage.index === currentIdx;
+        const stateClass = isDone ? 'completed' : (isActive ? 'active' : '');
+
+        return `
+          <div class="timeline-stage-node ${stateClass}" title="${stage.subtext}">
+            <div class="stage-node-number">${isDone ? '✓' : stage.index}</div>
+            <div class="stage-node-title">${isMr ? stage.nameMr : stage.name}</div>
+            <div class="stage-node-sub">${stage.subtext}</div>
+          </div>
+        `;
+      }).join('');
+
+      // Update badge
+      const statusBadge = document.getElementById('patientStatusBadge');
+      if (statusBadge) {
+        statusBadge.textContent = GavArogyaState.patient.statusLabel;
+        statusBadge.className = `case-status-pill ${GavArogyaState.patient.statusBadgeClass}`;
+      }
+    }
+
+    // AI Primary Consultation Engine
+    function selectAiSymptom(symptom) {
+      document.getElementById('aiSymptomInput').value = symptom;
+      runAiConsultation();
+    }
+
+    function simulateAiVoiceInput() {
+      const phrases = [
+        "मला छातीत तीव्र कळा येत आहेत आणि श्वास घेता येत नाही",
+        "खूप जोरात ताप आला आहे आणि अंग कापत आहे",
+        "डोकं खूप गरगरत आहे आणि शेतात औषध फवारणीनंतर चक्कर आली"
+      ];
+      const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+      document.getElementById('aiSymptomInput').value = randomPhrase;
+      showToast("Voice transcribed in Marathi: " + randomPhrase, "info");
+      runAiConsultation();
+    }
+
+    function runAiConsultation() {
+      const text = document.getElementById('aiSymptomInput').value.trim().toLowerCase();
+      if (!text) {
+        showToast("Please select or describe your symptoms first.", "alert");
+        return;
+      }
+
+      showToast("GavArogya AI analyzing symptoms against rural clinical protocols...", "info");
+      
+      setTimeout(() => {
+        const badge = document.getElementById('aiRiskBadge');
+        const title = document.getElementById('aiUrgencyTitle');
+        const desc = document.getElementById('aiRecommendationText');
+
+        if (text.includes('breath') || text.includes('chest') || text.includes('श्वास') || text.includes('छातीत')) {
+          badge.textContent = "HIGH RISK (RED)";
+          badge.className = "ai-risk-tag red";
+          title.textContent = "Critical Respiratory Distress & Acute Hypoxia";
+          title.style.color = "var(--rose-700)";
+          desc.innerHTML = `Rule-based triage detected <strong>Acute Respiratory Hypoxia</strong> (SpO2 89%, RR 28/min). Pulse rate elevated at 108 bpm. Oxygen support and emergency physician evaluation recommended immediately. Frontline ASHA worker Sunita Tai has been queued.`;
+          GavArogyaState.patient.triageRisk = "HIGH_RED";
+          logAudit('system', "GavArogya AI Engine", "Analyzed symptoms: flagged RED Risk (Acute Hypoxia/Cardiac)", "Clinical Decision Support");
+        } else if (text.includes('fever') || text.includes('ताप') || text.includes('shivering')) {
+          badge.textContent = "MODERATE RISK (AMBER)";
+          badge.className = "ai-risk-tag amber";
+          title.textContent = "Prolonged Febrile Illness / Suspected Infection";
+          title.style.color = "var(--amber-700)";
+          desc.innerHTML = `High fever with chills lasting 3+ days warrants frontline blood smear evaluation for malaria/dengue. Oral rehydration and Paracetamol antipyretic recommended. Connect with ASHA worker for vitals check.`;
+          GavArogyaState.patient.triageRisk = "MODERATE_AMBER";
+          logAudit('system', "GavArogya AI Engine", "Analyzed symptoms: flagged AMBER Risk (Febrile Illness)", "Clinical Decision Support");
+        } else {
+          badge.textContent = "MILD / STABLE (GREEN)";
+          badge.className = "ai-risk-tag green";
+          title.textContent = "Stable / Primary Symptom Management";
+          title.style.color = "var(--emerald-700)";
+          desc.innerHTML = `No immediate emergency red flags detected. Maintain hydration, rest, and monitor vitals. If discomfort persists beyond 48 hours, schedule eSanjeevani teleconsultation with Dr. Kulkarni.`;
+          GavArogyaState.patient.triageRisk = "LOW_GREEN";
+          logAudit('system', "GavArogya AI Engine", "Analyzed symptoms: flagged GREEN Risk (Stable)", "Clinical Decision Support");
+        }
+        saveState();
+      }, 400);
+    }
+
+    function triggerAshaAlertFromAi() {
+      GavArogyaState.patient.currentStageIndex = 2; // Assessment
+      GavArogyaState.patient.statusLabel = "ASHA Alerted (Assessment in Progress)";
+      GavArogyaState.patient.statusBadgeClass = "assessed";
+      saveState();
+      renderPatientTimeline();
+      logAudit('patient', `Patient (${GavArogyaState.patient.name})`, "Sent emergency AI triage summary to ASHA Sunita Tai", "Assigned Scope");
+      showToast("ASHA Worker Sunita Tai received your alert & vitals summary at Kharpudi!", "success");
+    }
+
+    function escapePatientText(value) {
+      return String(value ?? '').replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
+    }
+
+    function formatPatientDate(value) {
+      if (!value) return 'Date not recorded';
+      return new Date(value).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
+    function getPatientTimeline(record) {
+      const events = [];
+      record.consultations.forEach(item => events.push({ date: item.createdAt, type: 'Consultation', title: item.doctor, detail: item.status }));
+      record.conditions.forEach(item => events.push({ date: item.diagnosisDate, type: 'Diagnosis', title: item.condition, detail: item.status }));
+      record.hospitalizations.forEach(item => events.push({ date: item.admissionDate, type: 'Hospitalization', title: item.facility, detail: item.reason }));
+      record.labReports.forEach(item => events.push({ date: item.date, type: 'Lab Report', title: item.testName, detail: item.result }));
+      record.prescriptions.forEach(item => events.push({ date: item.date, type: 'Prescription', title: item.doctor, detail: item.medicines }));
+      record.referrals.forEach(item => events.push({ date: item.date, type: 'Referral', title: item.referredFacility, detail: item.status }));
+      record.followUps.forEach(item => events.push({ date: item.date, type: 'Follow-up', title: item.provider, detail: item.status }));
+      record.assistanceRequests.forEach(item => events.push({ date: item.createdAt, type: 'Assistance Request', title: item.reason, detail: item.status }));
+      record.emergencyRequests.forEach(item => events.push({ date: item.createdAt, type: 'Emergency Request', title: item.id, detail: item.status }));
+      return events.filter(item => item.date).sort((left, right) => new Date(right.date) - new Date(left.date));
+    }
+
+    function renderMedicalHistory() {
+      const record = getAuthenticatedPatientRecord();
+      if (!record) return;
+      const summary = document.getElementById('medicalHistorySummary');
+      const timeline = document.getElementById('medicalTimelinePreview');
+      if (!summary || !timeline) return;
+      const counts = [
+        ['Conditions', record.conditions.length, 'var(--rose-50)', 'var(--rose-700)'],
+        ['Medications', record.medications.length, 'var(--blue-50)', 'var(--blue-700)'],
+        ['Lab Reports', record.labReports.length, 'var(--teal-50)', 'var(--teal-700)'],
+        ['Prescriptions', record.prescriptions.length, 'var(--amber-50)', 'var(--amber-700)'],
+        ['Assistance Requests', record.assistanceRequests.length, 'var(--blue-50)', 'var(--blue-700)'],
+        ['Emergency Requests', record.emergencyRequests.length, 'var(--rose-50)', 'var(--rose-700)']
+      ];
+      summary.innerHTML = counts.map(item => `<div style="background: ${item[2]}; border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 14px;"><div style="font-size: 0.72rem; color: var(--slate-600);">${item[0]}</div><strong style="font-size: 1.35rem; color: ${item[3]};">${item[1]}</strong></div>`).join('');
+      const events = getPatientTimeline(record).slice(0, 5);
+      timeline.innerHTML = events.length ? events.map(event => `<div style="border-left: 3px solid var(--teal-500); padding: 8px 12px; background: var(--slate-50);"><div style="font-size: 0.7rem; color: var(--teal-700); font-weight: 800;">${escapePatientText(event.type)} • ${escapePatientText(formatPatientDate(event.date))}</div><strong style="font-size: 0.82rem;">${escapePatientText(event.title)}</strong><div style="font-size: 0.75rem; color: var(--slate-600);">${escapePatientText(event.detail)}</div></div>`).join('') : '<div style="font-size: 0.78rem; color: var(--slate-500);">No medical history has been recorded yet.</div>';
+    }
+
+    function openMedicalHistoryModal() {
+      const record = getAuthenticatedPatientRecord();
+      const profile = record.profile;
+      const timeline = getPatientTimeline(record);
+      openModal('🩺 Medical History', `<div style="display: flex; flex-direction: column; gap: 14px; font-size: 0.8rem;">
+        <div style="background: var(--teal-50); border: 1px solid var(--teal-200); border-radius: var(--radius-md); padding: 12px;"><strong>${escapePatientText(profile.name)}</strong><br>Age: ${escapePatientText(profile.age || 'Not recorded')} • Gender: ${escapePatientText(profile.gender || 'Not recorded')} • Blood group: ${escapePatientText(profile.bloodGroup || 'Not recorded')}<br>ABHA: ${escapePatientText(profile.abhaId || 'Not linked')}<br>Allergies: ${escapePatientText(profile.allergies.length ? profile.allergies.join(', ') : 'None recorded')}<br>Emergency contact: ${escapePatientText(profile.emergencyContact || 'Not recorded')}</div>
+        ${renderHistoryGroup('Medical Conditions', record.conditions, item => `<strong>${escapePatientText(item.condition)}</strong> • ${escapePatientText(item.status)}<br>${escapePatientText(item.notes || '')}`)}
+        ${renderHistoryGroup('Medication History', record.medications, item => `<strong>${escapePatientText(item.name)}</strong> • ${escapePatientText(item.dosage)}, ${escapePatientText(item.frequency)} • ${escapePatientText(item.status)}`)}
+        ${renderHistoryGroup('Allergies', record.allergies, item => `<strong>${escapePatientText(item.allergy)}</strong> • ${escapePatientText(item.reaction)} • ${escapePatientText(item.severity)}`)}
+        ${renderHistoryGroup('Hospitalization History', record.hospitalizations, item => `<strong>${escapePatientText(item.facility)}</strong> • ${escapePatientText(item.reason)}<br>${escapePatientText(item.treatmentSummary || '')}`)}
+        ${renderHistoryGroup('Lab Reports', record.labReports, item => `<strong>${escapePatientText(item.testName)}</strong> • ${escapePatientText(item.result)} • ${escapePatientText(item.facility)}`)}
+        ${renderHistoryGroup('Prescription History', record.prescriptions, item => `<strong>${escapePatientText(item.doctor)}</strong> • ${escapePatientText(item.medicines)}<br>${escapePatientText(item.instructions || '')}`)}
+        <div><h5 style="margin-bottom: 8px;">Chronological Timeline</h5>${timeline.length ? timeline.map(event => `<div style="border-left: 3px solid var(--teal-500); padding: 7px 10px; margin-bottom: 6px; background: var(--slate-50);"><strong>${escapePatientText(event.type)}:</strong> ${escapePatientText(event.title)}<br><span style="color: var(--slate-500);">${escapePatientText(formatPatientDate(event.date))} • ${escapePatientText(event.detail)}</span></div>`).join('') : '<span style="color: var(--slate-500);">No timeline events recorded.</span>'}</div>
+      </div>`, '<button class="btn-primary" onclick="closeModal()" style="width: auto; padding: 8px 20px;">Close</button>');
+    }
+
+    function renderHistoryGroup(title, items, formatter) {
+      return `<div><h5 style="margin-bottom: 8px;">${title}</h5>${items.length ? items.map(item => `<div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-sm); padding: 8px; margin-bottom: 6px;">${formatter(item)}</div>`).join('') : '<span style="color: var(--slate-500);">No records available.</span>'}</div>`;
+    }
+
+    // Modal Actions
+    function openAskHelpModal() {
+      openModal("➕ Ask for Immediate Assistance", `
+        <div style="font-size: 0.85rem; color: var(--slate-700);">
+          <p style="margin-bottom: 12px;">Request for <strong>${escapePatientText(GavArogyaState.patient.name)}</strong>. Assigned worker: <strong>${escapePatientText(GavArogyaState.patient.assignedAsha || 'ASHA worker pending')}</strong>.</p>
+          <label class="form-label">Reason for visit</label><input id="visitReason" class="form-input" placeholder="Routine checkup or urgent visit">
+          <label class="form-label">Symptoms</label><textarea id="askHelpReason" class="form-input" style="height: 70px;" placeholder="Describe your symptoms"></textarea>
+          <label class="form-label">Preferred date and time</label><input id="visitDateTime" type="datetime-local" class="form-input">
+          <label class="form-label">Additional notes</label><textarea id="visitNotes" class="form-input" style="height: 60px;" placeholder="Anything else to share"></textarea>
+          <div style="margin-top: 10px; font-size: 0.74rem; color: var(--slate-500);">
+            🔒 Encrypted telemetry will be shared with verified frontline workers only.
+          </div>
+        </div>
+      `, `
+        <button class="btn-primary" onclick="event.stopPropagation(); submitAskHelp()" style="width: auto; padding: 8px 22px;">Submit Request</button>
+      `);
+    }
+
+    function submitAskHelp() {
+      const reason = document.getElementById('visitReason').value.trim();
+      const symptoms = document.getElementById('askHelpReason').value.trim();
+      const preferredAt = document.getElementById('visitDateTime').value;
+      if (!reason || !symptoms || !preferredAt) {
+        showToast('Reason, symptoms, and preferred date/time are required.', 'alert');
+        return;
+      }
+      const request = { id: `REQ-${Date.now().toString().slice(-8)}`, reason, symptoms, preferredAt, notes: document.getElementById('visitNotes').value.trim(), status: 'Submitted', createdAt: new Date().toISOString() };
+      updateAuthenticatedPatientRecord(record => record.assistanceRequests.push(request));
+      setTimeout(closeModal, 0);
+      showToast(`Assistance request ${request.id} submitted successfully.`, 'success');
+      renderMedicalHistory();
+    }
+
+    function openConsultDoctorModal() {
+      openModal("🩺 eSanjeevani Teleconsultation Session", `
+        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.82rem;">
+          <div style="background: var(--teal-50); border: 1px solid var(--teal-200); padding: 12px; border-radius: var(--radius-md);"><strong>Dr. A. Kulkarni</strong><br>MD Medicine • ${escapePatientText(GavArogyaState.patient.assignedFacility)}<br>Patient: ${escapePatientText(GavArogyaState.patient.name)}</div>
+          <div id="consultVideoSurface" style="height: 150px; display: flex; align-items: center; justify-content: center; background: #0f172a; color: #cbd5e1; border-radius: var(--radius-md);">Camera preview is ready for this prototype consultation.</div>
+          <div style="display: flex; gap: 8px; justify-content: center;"><button id="consultMuteBtn" class="portal-view-toggle-btn" onclick="toggleConsultControl('mute')">Mute</button><button id="consultCameraBtn" class="portal-view-toggle-btn" onclick="toggleConsultControl('camera')">Camera Off</button></div>
+          <div id="consultStatus" style="color: var(--slate-600);">Room ready. Start the call when you are ready.</div>
+        </div>
+      `, `
+        <button id="consultStartBtn" class="btn-primary" onclick="startPatientConsultation()" style="width: auto; padding: 8px 22px;">Start Call</button>
+        <button id="consultEndBtn" class="btn-facility-action passport" onclick="endPatientConsultation()" style="width: auto; padding: 8px 22px;">End Call</button>
+      `);
+    }
+
+    function startPatientConsultation() {
+      const consultation = { id: `CON-${Date.now().toString().slice(-8)}`, doctor: 'Dr. A. Kulkarni', facility: GavArogyaState.patient.assignedFacility, status: 'In progress', createdAt: new Date().toISOString() };
+      updateAuthenticatedPatientRecord(record => record.consultations.push(consultation));
+      document.getElementById('consultStatus').textContent = 'Call in progress. This prototype is ready for WebRTC integration.';
+      document.getElementById('consultStartBtn').disabled = true;
+      showToast('Consultation started securely.', 'success');
+    }
+
+    function toggleConsultControl(type) {
+      const button = document.getElementById(type === 'mute' ? 'consultMuteBtn' : 'consultCameraBtn');
+      if (!button) return;
+      button.textContent = type === 'mute' ? (button.textContent === 'Mute' ? 'Unmute' : 'Mute') : (button.textContent === 'Camera Off' ? 'Camera On' : 'Camera Off');
+    }
+
+    function endPatientConsultation() {
+      const record = getAuthenticatedPatientRecord();
+      const active = record.consultations[record.consultations.length - 1];
+      if (active && active.status === 'In progress') {
+        updateAuthenticatedPatientRecord(current => { current.consultations[current.consultations.length - 1].status = 'Completed'; });
+      }
+      closeModal();
+      showToast('Consultation ended. The visit remains in your medical history.', 'info');
+      renderMedicalHistory();
+    }
+
+    function openContactAshaModal() {
+      const worker = GavArogyaState.patient.assignedAsha || 'Assigned ASHA worker pending';
+      openModal("👤 Contact ASHA Worker", `
+        <div style="text-align: center; padding: 10px 0;">
+          <div style="font-size: 2.8rem; margin-bottom: 8px;">👩‍⚕️</div>
+          <h4 style="font-weight: 800; font-size: 1.1rem; color: var(--slate-900);">${escapePatientText(worker)}</h4>
+          <p style="font-size: 0.82rem; color: var(--slate-600); margin-bottom: 12px;">Assigned frontline worker for ${escapePatientText(GavArogyaState.patient.village || 'your area')}</p>
+          <div style="font-size: 0.95rem; font-weight: 800; color: var(--teal-800); background: var(--teal-50); padding: 8px; border-radius: 6px; border: 1px solid var(--teal-200); margin-bottom: 14px;">
+            📞 Contact through GavArogya secure bridge
+          </div>
+          <p id="ashaContactStatus" style="font-size: 0.76rem; color: var(--slate-500);">ASHA workers provide doorstep vitals check, medicine delivery, and referral coordination.</p>
+        </div>
+      `, `
+        <button class="btn-primary" onclick="contactAssignedAsha()" style="width: auto; padding: 8px 22px;">Start Contact</button>
+      `);
+    }
+
+    function contactAssignedAsha() {
+      updateAuthenticatedPatientRecord(record => record.assistanceRequests.push({ id: `CALL-${Date.now().toString().slice(-8)}`, reason: 'Contacted assigned ASHA worker', status: 'Contact initiated', createdAt: new Date().toISOString() }));
+      const status = document.getElementById('ashaContactStatus');
+      if (status) status.textContent = 'Secure contact request sent. Your ASHA worker will respond through the frontline bridge.';
+      showToast('Contact request sent to your assigned ASHA worker.', 'success');
+    }
+
+    function openEmergencyModal() {
+      const p = GavArogyaState.patient;
+      openModal("🚨 Dispatch 108 Emergency Ambulance", `
+        <div style="font-size: 0.85rem; color: var(--slate-700);">
+          <div style="background: var(--rose-50); border: 1px solid var(--rose-200); padding: 12px; border-radius: var(--radius-md); margin-bottom: 14px;">
+            <div style="font-weight: 800; color: var(--rose-800); font-size: 0.95rem; margin-bottom: 4px;">Emergency Medical Response (MEMS 108)</div>
+            <p style="font-size: 0.8rem; color: var(--rose-700);">Pre-arrival telemetry (SpO2 89%, BP 148/96) will be transmitted directly to the incoming paramedic unit.</p>
+          </div>
+          <p><strong>Patient:</strong> ${escapePatientText(p.name)} (${escapePatientText(p.id)})</p>
+          <p><strong>Pickup Location:</strong> ${escapePatientText(p.village || 'Location not recorded')}</p>
+          <p><strong>Destination:</strong> ${escapePatientText(p.assignedFacility || 'Nearest emergency facility')}</p>
+          <p><strong>Registered mobile:</strong> ${escapePatientText(p.mobile || 'Not recorded')}</p>
+        </div>
+      `, `
+        <button class="btn-primary" onclick="confirmEmergencyDispatch()" style="background: var(--rose-600); width: auto; padding: 8px 22px;">Confirm 108 Dispatch</button>
+      `);
+    }
+
+    function confirmEmergencyDispatch() {
+      const request = { id: `EMS-${Date.now().toString().slice(-8)}`, status: 'Dispatch simulated - ambulance assigned', patientId: GavArogyaState.patient.id, location: GavArogyaState.patient.village, createdAt: new Date().toISOString() };
+      updateAuthenticatedPatientRecord(record => record.emergencyRequests.push(request));
+      closeModal();
+      openModal('🚑 Emergency Request Status', `<div style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 8px;"><strong>Emergency request created</strong><div><strong>Request ID:</strong> ${request.id}</div><div><strong>Status:</strong> ${request.status}</div><div><strong>Patient:</strong> ${escapePatientText(GavArogyaState.patient.name)}</div><div><strong>Location:</strong> ${escapePatientText(request.location || 'Not recorded')}</div><p style="color: var(--rose-700);">This frontend prototype does not contact MEMS 108. The request is saved and ready for emergency-service API integration.</p></div>`, '<button class="btn-primary" onclick="closeModal()" style="width: auto; padding: 8px 20px;">Close</button>');
+      showToast(`Emergency request ${request.id} recorded.`, 'alert');
+    }
+
+    function openCarePassportModal() {
+      const p = GavArogyaState.patient;
+      const record = getAuthenticatedPatientRecord();
+      const latestEmergency = record.emergencyRequests[record.emergencyRequests.length - 1];
+      openModal("🪪 GavArogya Digital Care Passport", `
+        <div style="border: 2px solid var(--teal-600); border-radius: var(--radius-lg); padding: 18px; background: #fbfdfc;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--slate-200); padding-bottom: 10px; margin-bottom: 12px;">
+            <div>
+              <span style="font-size: 0.72rem; color: var(--slate-500); text-transform: uppercase;">ABDM Electronic Health Token</span>
+              <h4 style="font-weight: 800; color: var(--teal-900); font-size: 1.1rem;">GavArogya Care Passport</h4>
+            </div>
+            <span style="font-size: 0.72rem; background: var(--teal-100); color: var(--teal-800); padding: 2px 8px; border-radius: 4px; font-weight: 700;">Verified Active</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.8rem; margin-bottom: 14px;">
+            <div><strong>Citizen:</strong> ${p.name}</div>
+            <div><strong>Token ID:</strong> ${p.id}</div>
+            <div><strong>ABHA:</strong> ${p.abhaId}</div>
+            <div><strong>Referral Facility:</strong> ${escapePatientText(p.assignedFacility)}</div>
+            <div><strong>Blood group:</strong> ${escapePatientText(record.profile.bloodGroup || 'Not recorded')}</div>
+            <div><strong>Allergies:</strong> ${escapePatientText(record.allergies.length ? record.allergies.join(', ') : 'None recorded')}</div>
+          </div>
+
+          <div style="background: var(--slate-50); border: 1px dashed var(--slate-300); padding: 10px; border-radius: 6px; font-size: 0.76rem; margin-bottom: 14px;">
+            <strong>Authorized Triage Vitals:</strong> SpO2: ${p.vitals.spo2} • BP: ${p.vitals.bp} • Pulse: ${p.vitals.pulse} • RR: ${p.vitals.respRate}<br>
+            <strong>Chief Complaint:</strong> ${escapePatientText(p.symptoms)}<br>
+            <strong>Medical history:</strong> ${record.conditions.length ? escapePatientText(record.conditions.map(item => item.condition).join(', ')) : 'No conditions recorded'}
+          </div>
+
+          <!-- Simulated QR Code -->
+          <div style="text-align: center; margin-top: 10px;">
+            <svg width="120" height="120" viewBox="0 0 100 100" style="margin: 0 auto; background: var(--white); padding: 6px; border: 1px solid var(--slate-300); border-radius: 8px;">
+              <rect x="10" y="10" width="25" height="25" fill="#0f172a"/>
+              <rect x="15" y="15" width="15" height="15" fill="#fff"/>
+              <rect x="65" y="10" width="25" height="25" fill="#0f172a"/>
+              <rect x="70" y="15" width="15" height="15" fill="#fff"/>
+              <rect x="10" y="65" width="25" height="25" fill="#0f172a"/>
+              <rect x="15" y="70" width="15" height="15" fill="#fff"/>
+              <circle cx="50" cy="50" r="10" fill="#129a85"/>
+              <rect x="42" y="15" width="16" height="8" fill="#0f172a"/>
+              <rect x="42" y="77" width="16" height="8" fill="#0f172a"/>
+              <rect x="70" y="50" width="15" height="8" fill="#0f172a"/>
+              <rect x="50" y="70" width="8" height="15" fill="#0f172a"/>
+            </svg>
+            <div style="font-size: 0.7rem; color: var(--slate-500); margin-top: 6px;">
+              Token: ${escapePatientText(`${p.id}-${p.abhaId || 'NO-ABHA'}`)} • Scan at the authorized facility desk
+            </div>
+          </div>
+          ${latestEmergency ? `<div style="background: var(--rose-50); border: 1px solid var(--rose-200); padding: 8px; border-radius: var(--radius-sm); font-size: 0.72rem;"><strong>Emergency status:</strong> ${escapePatientText(latestEmergency.status)} • ${escapePatientText(latestEmergency.id)}</div>` : ''}
+        </div>
+      `, `
+        <button class="btn-primary" onclick="closeModal(); showToast('Care Passport QR token downloaded.', 'success');" style="width: auto; padding: 8px 22px;">Download Token PDF</button>
+      `);
+    }
+
+    function openMyReferralsModal() {
+      const record = getAuthenticatedPatientRecord();
+      const referrals = record.referrals;
+      openModal("📋 My Active Referral Track", `
+        <div style="font-size: 0.85rem; color: var(--slate-700);">
+          ${referrals.length ? referrals.map(referral => `<div style="border: 1px solid var(--slate-200); padding: 14px; border-radius: var(--radius-md); background: var(--slate-50); margin-bottom: 12px;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;"><strong style="color: var(--teal-900);">${escapePatientText(referral.referredFacility)}</strong><span class="case-status-pill referred">${escapePatientText(referral.status)}</span></div><p><strong>Referring doctor:</strong> ${escapePatientText(referral.doctor || 'Not recorded')}</p><p><strong>Referral date:</strong> ${escapePatientText(formatPatientDate(referral.date))}</p><p><strong>Appointment/admission:</strong> ${escapePatientText(referral.appointmentStatus || 'Pending')}</p><p><strong>Pre-arrival:</strong> ${escapePatientText(referral.preArrivalStatus || 'Not available')}</p></div>`).join('') : `<div style="border: 1px solid var(--slate-200); padding: 14px; border-radius: var(--radius-md); background: var(--slate-50);">No referrals are currently recorded for ${escapePatientText(GavArogyaState.patient.name)}.</div>`}
+          ${!referrals.length ? '' : `<button class="portal-view-toggle-btn" onclick="updateLatestReferral()">Update latest referral status</button>`}
+        </div>
+      `, `<button class="btn-primary" onclick="closeModal()" style="width: auto; padding: 8px 20px;">Close</button>`);
+    }
+
+    function updateLatestReferral() {
+      updateAuthenticatedPatientRecord(record => {
+        const referral = record.referrals[record.referrals.length - 1];
+        if (referral) referral.status = referral.status === 'Accepted' ? 'Treatment in progress' : 'Accepted';
+      });
+      closeModal();
+      openMyReferralsModal();
+      showToast('Referral status updated.', 'success');
+    }
+
+    function openFollowUpsModal() {
+      const record = getAuthenticatedPatientRecord();
+      openModal("🔄 7-Day Follow-Up Recovery Schedule", `
+        <div style="font-size: 0.85rem; color: var(--slate-700);">
+          ${record.followUps.length ? record.followUps.map(item => `<div style="background: var(--slate-50); border: 1px solid var(--slate-200); padding: 12px; border-radius: var(--radius-md); font-size: 0.8rem; margin-bottom: 10px;"><strong>Date:</strong> ${escapePatientText(formatPatientDate(item.date))}<br><strong>Provider:</strong> ${escapePatientText(item.provider)}<br><strong>Facility:</strong> ${escapePatientText(item.facility)}<br><strong>Purpose:</strong> ${escapePatientText(item.purpose)}<br><strong>Status:</strong> ${escapePatientText(item.status)}</div>`).join('') : '<p>No follow-up visits are scheduled yet.</p>'}
+          ${record.followUps.length ? '<button class="portal-view-toggle-btn" onclick="updateLatestFollowUp()">Mark latest follow-up complete</button>' : ''}
+        </div>
+      `, `<button class="btn-primary" onclick="closeModal()" style="width: auto; padding: 8px 20px;">Close</button>`);
+    }
+
+    function updateLatestFollowUp() {
+      updateAuthenticatedPatientRecord(record => {
+        const followUp = record.followUps[record.followUps.length - 1];
+        if (followUp) followUp.status = 'Completed';
+      });
+      closeModal();
+      openFollowUpsModal();
+      showToast('Follow-up status updated.', 'success');
+    }
+
+    function openHealthTipsModal() {
+      openModal("💡 Rural Healthcare Tips • आरोग्य सल्ला", `
+        <div style="font-size: 0.85rem; color: var(--slate-700); display: flex; flex-direction: column; gap: 12px;">
+          <div style="background: var(--teal-50); border: 1px solid var(--teal-200); padding: 10px; border-radius: 6px;">
+            <strong>💧 Pure Drinking Water:</strong> Always boil water during monsoon to prevent waterborne gastroenteritis.
+          </div>
+          <div style="background: var(--amber-50); border: 1px solid var(--amber-200); padding: 10px; border-radius: 6px;">
+            <strong>🌾 Agricultural Safety:</strong> Wear full cloth coverings and face masks when spraying crop pesticides.
+          </div>
+          <div style="background: var(--blue-50); border: 1px solid var(--blue-200); padding: 10px; border-radius: 6px;">
+            <strong>🩺 Blood Pressure Check:</strong> Citizens above 40 should have BP checked monthly with village ASHA.
+          </div>
+          <div style="background: var(--emerald-50); border: 1px solid var(--emerald-200); padding: 10px; border-radius: 6px;"><strong>🧼 Infection Prevention:</strong> Wash hands before meals and after using the toilet; seek care for persistent fever or dehydration.</div>
+          <div style="background: var(--purple-50); border: 1px solid var(--purple-200); padding: 10px; border-radius: 6px;"><strong>🫀 Diabetes Awareness:</strong> Keep regular blood sugar checks and take prescribed medicines as directed. These are general health tips, not a diagnosis.</div>
+        </div>
+      `, `<button class="btn-primary" onclick="closeModal()" style="width: auto; padding: 8px 20px;">Close</button>`);
+    }
+
+    function onStateUpdated() {
+      renderPatientTimeline();
+      applyTranslations();
+    }
+
+    function renderPatientIdentity(account) {
+      const p = GavArogyaState.patient;
+      document.getElementById('patientNameHeader').textContent = `${p.name} (${p.nameMr || p.name})`;
+      document.getElementById('patientAbhaHeader').textContent = p.abhaId || 'Not linked';
+      document.getElementById('patientAgeHeader').textContent = `${p.age || '—'} Yrs, ${p.gender || '—'}`;
+      document.getElementById('patientVillageHeader').textContent = p.village || '—';
+      document.getElementById('patientAshaHeader').textContent = p.assignedAsha || 'Assigned worker pending';
+      document.title = `${account.name} - Patient Portal - GavArogya`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const account = requireRole('PATIENT');
+      if (!account) return;
+      renderPatientIdentity(account);
+      renderPatientTimeline();
+      renderMedicalHistory();
+      applyTranslations();
+      if (sessionStorage.getItem('GAVAROGYA_OPEN_PATIENT_PASSPORT') === 'true') {
+        sessionStorage.removeItem('GAVAROGYA_OPEN_PATIENT_PASSPORT');
+        setTimeout(openCarePassportModal, 250);
+      }
+      const modal = document.getElementById('genericModal');
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeModal();
+        });
+      }
+    });
+  </script>
+</body>
+</html>
