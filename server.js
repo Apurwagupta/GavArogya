@@ -44,15 +44,9 @@ app.use(express.urlencoded({
     extended: true
 }));
 
-app.use(
-    express.static(
-        path.join(__dirname, 'client', 'dist')
-    )
-);
-
-app.use(
-    express.static(__dirname)
-);
+app.use(express.static(__dirname,{
+    index:false
+}));
 
 
 // ============================================================
