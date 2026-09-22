@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Login | GavArogya</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { min-height: 100vh; background: linear-gradient(135deg, #effcf8, #f8fafc); }
+    .auth-page { max-width: 560px; margin: 0 auto; padding: 56px 20px; }
+    .auth-card { background: #fff; border: 1px solid var(--slate-200); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); padding: 30px; }
+    .auth-back { display: inline-block; margin-bottom: 20px; color: var(--teal-700); font-weight: 700; text-decoration: none; }
+    .auth-title { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .auth-title span { font-size: 2.1rem; }
+    .auth-title h1 { margin: 0; font-size: 1.55rem; color: var(--slate-900); }
+    .auth-subtitle { margin: 0 0 22px; color: var(--slate-600); }
+    .auth-tabs { display: flex; gap: 8px; margin-bottom: 22px; }
+    .auth-tabs button { flex: 1; border: 1px solid var(--slate-300); background: #fff; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 700; }
+    .auth-tabs button.active { background: var(--teal-600); color: #fff; border-color: var(--teal-600); }
+    .auth-form { display: grid; gap: 14px; }
+    .auth-form .btn-primary { margin-top: 4px; }
+    .auth-message { min-height: 22px; margin: 14px 0 0; font-size: .9rem; font-weight: 600; }
+    .auth-message.error { color: var(--rose-700); }.auth-message.success { color: var(--emerald-700); }
+  </style>
+</head>
+<body>
+  <main class="auth-page">
+    <a class="auth-back" href="index.html">← Back to portal selection</a>
+    <section class="auth-card" aria-live="polite">
+      <div class="auth-title"><span id="roleIcon"></span><h1 id="roleTitle"></h1></div>
+      <p class="auth-subtitle" id="roleSubtitle"></p>
+      <div class="auth-tabs"><button id="loginTab" type="button">Login</button><button id="signupTab" type="button">Sign Up</button></div>
+      <form id="authForm" class="auth-form"></form>
+      <p id="authMessage" class="auth-message"></p>
+    </section>
+  </main>
+  <script src="shared.js"></script>
+  <script>
+    const role = new URLSearchParams(location.search).get('role') || 'patient';
+    const roles = {
+      patient: { key: 'PATIENT', icon: '👤', title: 'Patient Portal', subtitle: 'Access your personal healthcare journey.' },
+      asha: { key: 'ASHA_WORKER', icon: '👩‍⚕️', title: 'ASHA Worker Portal', subtitle: 'Secure access for accredited frontline workers.' },
+      facility: { key: 'FACILITY', icon: '🏥', title: 'Healthcare Facility Hub', subtitle: 'Manage referrals, capacity, and treatment updates.' },
+      ministry: { key: 'MINISTRY_ADMIN', icon: '🏛️', title: 'Ministry Analytics Portal', subtitle: 'Authorized government health analytics access.' }
+    };
+    const config = roles[role] || roles.patient;
+    let mode = 'login';
+    document.getElementById('roleIcon').textContent = config.icon;
+    document.getElementById('roleTitle').textContent = config.title;
+    document.getElementById('roleSubtitle').textContent = config.subtitle;
+    const field = (id, label, type = 'text', placeholder = '', required = true) => `<div class="form-group"><label class="form-label" for="${id}">${label}</label><input class="form-input" id="${id}" type="${type}" placeholder="${placeholder}" ${required ? 'required' : ''}></div>`;
+    function fields() {
+      if (mode === 'login') {
+        if (role === 'patient') return field('mobile', 'Mobile number', 'tel', '10-digit mobile number') + field('otp', '4-digit OTP', 'text', 'Enter OTP');
+        if (role === 'asha') return field('workerId', 'ASHA Worker ID', 'text', 'e.g. ASHA-SAT-104') + field('password', 'Password', 'password');
+        if (role === 'facility') return field('facilityId', 'Facility / HFR ID') + field('staffId', 'Authorized staff ID') + field('password', 'Password', 'password');
+        return field('email', 'Government email', 'email', 'name@gov.in') + field('password', 'Password', 'password') + field('mfa', '6-digit MFA token', 'text');
+      }
+      if (role === 'patient') return field('name', 'Full name') + field('mobile', 'Mobile number', 'tel') + field('village', 'Village and taluka') + field('ageGender', 'Age, Gender', 'text', 'e.g. 52, Male') + field('abhaId', 'ABHA ID (optional)', 'text', '', false) + '<label class="consent-checkbox-wrap"><input id="consent" type="checkbox" required> I consent to ABDM record linking.</label>';
+      if (role === 'asha') return field('name', 'Full name') + field('workerId', 'ASHA Worker ID') + field('subCenter', 'Sub-center') + field('phc', 'Primary health center') + field('pin', '6-digit security PIN', 'password') + field('password', 'Password (8+ characters)', 'password');
+      if (role === 'facility') return field('facilityName', 'Facility name') + field('hfrId', 'ABDM HFR ID') + field('staffId', 'Nodal staff ID') + field('password', 'Password (8+ characters)', 'password');
+      return field('name', 'Officer name') + field('email', 'Government email', 'email', 'name@gov.in') + field('employeeCode', 'Employee code') + field('designation', 'Designation') + field('password', 'Password (8+ characters)', 'password') + field('mfa', '6-digit MFA token', 'text');
+    }
+    function value(id) { return document.getElementById(id)?.value.trim() || ''; }
+    function message(text, isError = false) { const el = document.getElementById('authMessage'); el.textContent = text; el.className = `auth-message ${isError ? 'error' : 'success'}`; }
+    function render() {
+      document.getElementById('loginTab').classList.toggle('active', mode === 'login');
+      document.getElementById('signupTab').classList.toggle('active', mode === 'signup');
+      document.getElementById('authForm').innerHTML = fields() + `<button class="btn-primary" type="submit">${mode === 'login' ? 'Login and enter portal' : 'Create account and enter portal'} →</button>`;
+      message('');
+    }
+    document.getElementById('loginTab').onclick = () => { mode = 'login'; render(); };
+    document.getElementById('signupTab').onclick = () => { mode = 'signup'; render(); };
+    document.getElementById('authForm').onsubmit = event => {
+      event.preventDefault();
+      let result;
+      if (mode === 'login') {
+        if (role === 'patient') result = authenticateAccount(config.key, value('mobile'), value('otp'));
+        else if (role === 'asha') result = authenticateAccount(config.key, value('workerId'), value('password'));
+        else if (role === 'facility') result = authenticateAccount(config.key, value('facilityId'), value('password'), { staffId: value('staffId') });
+        else result = authenticateAccount(config.key, value('email'), value('password'), { mfa: value('mfa') });
+        if (result.account && role === 'patient') markPatientSession();
+      } else if (role === 'patient') {
+        result = registerPatientAccount({ name: value('name'), nameMr: value('name'), mobile: value('mobile'), village: value('village'), ageAndGender: value('ageGender'), abhaId: value('abhaId'), authMethod: 'otp' });
+      } else if (role === 'asha') {
+        if (!passwordIsValid(value('password')) || !/^\d{6}$/.test(value('pin'))) return message('Use an 8+ character password and a 6-digit PIN.', true);
+        result = registerAccount(config.key, { workerName: value('name'), workerId: value('workerId'), subCenter: value('subCenter'), phc: value('phc'), villageCoverage: value('subCenter'), pin: value('pin'), password: value('password') });
+      } else if (role === 'facility') {
+        if (!passwordIsValid(value('password'))) return message('Password must contain at least 8 characters.', true);
+        result = registerAccount(config.key, { facilityName: value('facilityName'), hfrId: value('hfrId'), facilityId: value('hfrId'), staffId: value('staffId'), staffName: value('staffId'), password: value('password') });
+      } else {
+        if (!passwordIsValid(value('password')) || !/^\d{6}$/.test(value('mfa'))) return message('Use an 8+ character password and a 6-digit MFA token.', true);
+        result = registerAccount(config.key, { name: value('name'), email: normalizeEmail(value('email')), employeeCode: value('employeeCode'), designation: value('designation'), password: value('password'), mfa: value('mfa') });
+      }
+      if (result?.error) return message(result.error, true);
+      message('Success. Opening your portal…');
+      setTimeout(() => redirectForRole(result.account), 500);
+    };
+    render();
+  </script>
+</body>
+</html>
