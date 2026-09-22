@@ -996,31 +996,35 @@ body {
 }
 
 .login-unit-card.patient .btn-primary {
-  background: var(--teal-700);
+  background:#16a34a;
+   color: white;
 }
 .login-unit-card.patient .btn-primary:hover {
-  background: var(--teal-800);
+  background: #15803d;
 }
 
 .login-unit-card.asha .btn-primary {
-  background: var(--emerald-600);
+  background:#16a34a;
+   color: white; 
 }
 .login-unit-card.asha .btn-primary:hover {
-  background: var(--emerald-700);
+  background: #15803d;
 }
 
 .login-unit-card.facility .btn-primary {
-  background: var(--blue-600);
+   background:#16a34a;
+   color: white;
 }
 .login-unit-card.facility .btn-primary:hover {
-  background: var(--blue-700);
+  background: #15803d;
 }
 
 .login-unit-card.ministry .btn-primary {
-  background: var(--purple-700);
+  background:#16a34a;
+   color: white;
 }
 .login-unit-card.ministry .btn-primary:hover {
-  background: var(--purple-800);
+  background: #15803d;
 }
 
 .login-sub-links {
